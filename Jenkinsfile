@@ -47,8 +47,8 @@ pipeline {
             steps {
                 sh '''
                     docker rm --force "$CONTAINER_NAME" 2>/dev/null || true
-                    docker run --detach --init --cap-add NET_ADMIN \\
-                      --publish 127.0.0.1:5000:5000 --name "$CONTAINER_NAME" \\
+                    docker run --detach --init --cap-add NET_ADMIN \
+                      --publish 127.0.0.1:5000:5000 --name "$CONTAINER_NAME" \
                       "$IMAGE_NAME:ci"
                 '''
             }
