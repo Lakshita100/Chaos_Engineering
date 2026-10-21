@@ -1,0 +1,6 @@
+Experiment,TotalRequests,SuccessfulRequests,FailedRequests,ErrorRate,AverageResponseTime,CPUUsage,MemoryUsage,RecoveryTime,Availability,Remarks
+Baseline,100,100,0,0%,62.1ms,10.1%,173.5MiB,0s,100%,Fixed workload of 100 requests against healthy container
+Container Failure,100,50,50,50.0%,27.2ms,n/a,n/a,15.64s,50.0%,50/50 requests failed while container stopped; healthy again after docker start (measured 2026-10-06 16:05 UTC)
+CPU Stress,50,50,0,0.0%,1487.1ms,37.9%,94.0%,7s,100.0%,Baseline 41.2ms at CPU 29.2%; 4 stress workers during 15s experiment (measured 2026-10-06 16:07 UTC)
+Memory Stress,50,50,0,0.0%,17.7ms,n/a,97.4%,2s,100.0%,Baseline 17.4ms at mem 96.2%; controlled 128MB pressure (measured 2026-10-06 16:08 UTC)
+Network Delay,50,50,0,0.0%,411.9ms,n/a,n/a,<1s,100.0%,200ms netem delay; normal 27.2ms -> delayed 411.9ms -> recovered 26.0ms (measured 2026-10-06 16:08 UTC)

@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: app/requirements.txt
+
+      - name: Install dependencies
+        run: python -m pip install -r app/requirements.txt
+
+      - name: Prepare results directory
+        run: mkdir -p results
+
+      - name: Run unit tests
+        run: pytest tests/ -v --junitxml=results/unit-test-results.xml
+
+      - name: Build Docker image
+        run: docker build --tag chaos-ai:${{ github.sha }} .
+
+      - name: Start application container
+        run: docker run --detach --init --publish 127.0.0.1:5000:5000 --name chaos-ai-container chaos-ai:${{ github.sha }}
+
+      - name: Wait for health check
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:5000/health; then exit 0; fi
+            sleep 2
+          done
+          docker logs chaos-ai-container
+          exit 1
+
+      - name: Run browser tests
+        env:
+          APP_URL: http://127.0.0.1:5000
+        run: pytest selenium/ -v --junitxml=results/selenium-test-results.xml
+
+      - name: Collect results and stop container
+        if: always()
+        run: |
+          mkdir -p results
+          docker logs chaos-ai-container > results/container_logs.txt 2>&1 || true
+          docker rm --force chaos-ai-container 2>/dev/null || true
+
+      - name: Upload test and container logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-results
+          path: results/
+          if-no-files-found: ignore

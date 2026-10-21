@@ -1,0 +1,11 @@
+services:
+  chaos-ai:
+    build: .
+    image: chaos-ai
+    container_name: chaos-ai-container
+    ports:
+      - "127.0.0.1:5000:5000"
+    cap_add:
+      - NET_ADMIN
+    init: true
+    restart: unless-stopped
