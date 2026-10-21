@@ -35,7 +35,7 @@ chaos-engineering-ai/
 │   └── experiment_results.csv
 ├── Dockerfile
 ├── docker-compose.yml
-├── Jenkinsfile
+├── jenkins-freestyle-job.xml
 ├── .gitignore
 └── README.md
 ```
@@ -60,12 +60,12 @@ chaos-engineering-ai/
 - Network delay
 - Metrics
 
-### Member 3 — Jenkins + Selenium
-- GitHub-Jenkins connection
-- Jenkinsfile
-- CI/CD stages
+### Member 3 — Jenkins Freestyle + Selenium
+- Maintain the local GitHub checkout used by the job
+- Freestyle build steps
+- Windows batch commands
 - Selenium tests
-- Pipeline results
+- Build results
 
 ### Shared
 - Git commits
@@ -225,31 +225,27 @@ Test:
 
 Run Selenium automatically through Jenkins after starting the application.
 
-## 12. Jenkins Pipeline
+## 12. Jenkins Freestyle Job
 
-Recommended stages:
+The Windows Freestyle job uses the local repository checkout and the existing
+Docker service on port 5000. Its build steps are:
 
 ```text
-Checkout
-  ↓
 Install Dependencies
   ↓
 Unit Tests
-  ↓
-Docker Build
-  ↓
-Start Container
   ↓
 Health Check
   ↓
 Selenium Tests
   ↓
-Chaos Experiments
+Chaos Experiments 1–4
   ↓
-Archive Results
+Copy and Archive Results
 ```
 
-Keep `Jenkinsfile` in the project root.
+Use `jenkins-freestyle-job.xml` as the Freestyle build-step reference. The job
+does not use a Groovy Jenkinsfile or rebuild the running Docker container.
 
 ## 13. Baseline
 
@@ -395,7 +391,7 @@ Merge tested changes into `main`.
 2. ML model
 3. Docker container
 4. Prediction
-5. Jenkins pipeline
+5. Jenkins Freestyle build
 6. Selenium test
 7. Baseline metrics
 8. Chaos experiment

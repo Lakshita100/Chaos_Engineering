@@ -2,7 +2,7 @@
 
 Chaos Engineering framework for testing the reliability of AI/ML systems: an
 Iris classifier served by a Flask API, containerized with Docker, built and
-tested by a Jenkins CI/CD pipeline, verified with Selenium, and subjected to
+tested by a Jenkins Freestyle job, verified with Selenium, and subjected to
 controlled failure experiments.
 
 ## Architecture
@@ -68,7 +68,7 @@ chaos-engineering-ai/
 │   └── experiment_results.csv
 ├── Dockerfile
 ├── docker-compose.yml
-├── Jenkinsfile
+├── jenkins-freestyle-job.xml
 ├── .gitignore
 └── README.md
 ```
@@ -121,12 +121,12 @@ pytest selenium/ -v   # browser tests (app must be running on :5000)
 
 ### 6. Jenkins
 
-The Jenkins pipeline runs unit tests, builds and health-checks the container,
-runs Selenium and controlled chaos experiments, then archives test reports and
-container logs. It expects a Linux Jenkins agent with Python 3.11, Docker access,
-Chrome, and the Jenkins Pipeline, Git, and JUnit plugins. See
-[`docs/jenkins-github-setup.md`](docs/jenkins-github-setup.md) for Jenkins and
-GitHub configuration.
+The active Jenkins job is a Windows Freestyle project. It runs unit tests,
+checks the existing Flask service, runs Selenium and all four controlled chaos
+experiments, then archives reports. The checked-in
+[`jenkins-freestyle-job.xml`](jenkins-freestyle-job.xml) records its build steps.
+There is no Groovy Jenkinsfile; configure Jenkins through the Freestyle job.
+See [`docs/jenkins-github-setup.md`](docs/jenkins-github-setup.md) for details.
 
 GitHub Actions runs unit tests, Docker build, and browser tests on pushes and
 pull requests targeting `main`.

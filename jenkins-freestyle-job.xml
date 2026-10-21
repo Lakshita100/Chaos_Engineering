@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
-  <description>Freestyle CI job for ResilAI - UI-configured (not pipeline-as-code). Runs unit tests, Selenium browser tests, and chaos experiments.</description>
+  <description>Windows Freestyle CI job for ResilAI. Runs unit tests, health check, Selenium, chaos experiments 1-4, and archives reports.</description>
   <keepDependencies>false</keepDependencies>
   <properties/>
   <scm class="hudson.scm.NullSCM"/>
@@ -11,27 +11,27 @@
   <triggers/>
   <concurrentBuild>false</concurrentBuild>
   <builders>
-    <hudson.tasks.BatchCommand>
-      <command>cd /d "D:\UserData\Desktop\ResilAI" &amp;&amp; ".venv\Scripts\python.exe" -m pip install -r app/requirements.txt 2>&1</command>
-    </hudson.tasks.BatchCommand>
-    <hudson.tasks.BatchCommand>
-      <command>cd /d "D:\UserData\Desktop\ResilAI" &amp;&amp; if not exist results mkdir results &amp;&amp; ".venv\Scripts\pytest.exe" tests/ -v --junitxml=results/unit-test-results.xml 2>&1</command>
-    </hudson.tasks.BatchCommand>
-    <hudson.tasks.BatchCommand>
-      <command>cd /d "D:\UserData\Desktop\ResilAI" &amp;&amp; start /B "" ".venv\Scripts\python.exe" app/app.py</command>
-    </hudson.tasks.BatchCommand>
-    <hudson.tasks.BatchCommand>
-      <command>cd /d "D:\UserData\Desktop\ResilAI" &amp;&amp; powershell -Command "for ($i=0; $i -lt 30; $i++) { try { $r = Invoke-WebRequest -Uri 'http://localhost:5000/health' -TimeoutSec 2; if ($r.StatusCode -eq 200) { Write-Output 'Flask app is healthy'; exit 0 } } catch {} ; Start-Sleep -Seconds 2 }; Write-Output 'Health check failed - aborting'; exit 1"</command>
-    </hudson.tasks.BatchCommand>
-    <hudson.tasks.BatchCommand>
-      <command>cd /d "D:\UserData\Desktop\ResilAI" &amp;&amp; set APP_URL=http://localhost:5000 &amp;&amp; ".venv\Scripts\pytest.exe" selenium/ -v --junitxml=results/selenium-test-results.xml 2>&1</command>
-    </hudson.tasks.BatchCommand>
-    <hudson.tasks.BatchCommand>
-      <command>cd /d "D:\UserData\Desktop\ResilAI" &amp;&amp; ".venv\Scripts\python.exe" chaos/run_experiments.py 2 3 2>&1 || echo "Chaos experiments completed (some may have warnings)"</command>
-    </hudson.tasks.BatchCommand>
-    <hudson.tasks.BatchCommand>
-      <command>cd /d "D:\UserData\Desktop\ResilAI" &amp;&amp; taskkill /F /IM python.exe /T 2&gt;nul || echo "No flask process to stop"</command>
-    </hudson.tasks.BatchCommand>
+    <hudson.tasks.BatchFile>
+      <command>cd /d D:\UserData\Desktop\ResilAI &amp;&amp; .venv\Scripts\python.exe -m pip install -r app\requirements.txt</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>cd /d D:\UserData\Desktop\ResilAI &amp;&amp; if not exist results mkdir results &amp;&amp; .venv\Scripts\python.exe -m pytest tests\ -v --junitxml=results\unit-test-results.xml</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>cd /d D:\UserData\Desktop\ResilAI &amp;&amp; powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\jenkins_health_check.ps1</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>cd /d D:\UserData\Desktop\ResilAI &amp;&amp; set &quot;APP_URL=http://localhost:5000&quot; &amp;&amp; .venv\Scripts\python.exe -m pytest selenium\ -v --junitxml=results\selenium-test-results.xml</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>cd /d D:\UserData\Desktop\ResilAI &amp;&amp; .venv\Scripts\python.exe chaos\run_experiments.py --requests 10 --duration 5 --workers 2 --mb 64 --delay 200 1 2 3 4</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>echo Existing Flask service is managed by Docker; no process cleanup needed.</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>if not exist &quot;%WORKSPACE%\results&quot; mkdir &quot;%WORKSPACE%\results&quot; &amp;&amp; xcopy /E /I /Y D:\UserData\Desktop\ResilAI\results &quot;%WORKSPACE%\results&quot;</command>
+    </hudson.tasks.BatchFile>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>

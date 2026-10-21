@@ -64,15 +64,15 @@ Test:
 
 Use Selenium for browser-level testing.
 
-### Phase 6 — Jenkins CI/CD
-Pipeline:
-1. Checkout
-2. Install dependencies
-3. Unit tests
-4. Docker build
-5. Start container
-6. Selenium tests
-7. Chaos tests
+### Phase 6 — Jenkins Freestyle CI/CD
+Freestyle build steps:
+1. Use the local project checkout
+2. Install/check dependencies
+3. Run unit tests
+4. Check the running Docker service
+5. Run Selenium tests
+6. Run all four chaos experiments
+7. Archive reports
 8. Store results
 
 ### Phase 7 — Chaos Engineering
@@ -110,7 +110,7 @@ Prepare architecture, tables, graphs, screenshots, report, PPT and viva.
 | M3 | Working Flask API |
 | M4 | Dockerized application |
 | M5 | Automated tests |
-| M6 | Jenkins pipeline |
+| M6 | Jenkins Freestyle job |
 | M7 | Chaos experiments |
 | M8 | Results and graphs |
 | M9 | Final report + presentation |
